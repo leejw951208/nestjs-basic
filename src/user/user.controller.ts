@@ -8,8 +8,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<User> {
-    return await this.userService.findOne(+id);
+  async findById(@Param('id') id: string): Promise<User> {
+    return await this.userService.findById(+id);
   }
 
   @Patch(':id')

@@ -1,11 +1,12 @@
 import { User } from '@prisma/client';
-import { SignupReqDto } from '../../common/auth/dto/signup-req.dto';
+import { SignupReqDto } from '../../auth/dto/signup-req.dto';
 
 export class UserEntity implements User {
   id: number | null;
   email: string;
   password: string;
   name: string;
+  isActive: boolean;
   teamId: number;
   createdAt: Date | null;
 

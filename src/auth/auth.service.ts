@@ -1,12 +1,12 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import * as bcryptjs from 'bcryptjs';
 import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthResDto } from './dto/auth-res.dto';
 import { SignupReqDto } from './dto/signup-req.dto';
-import { UserEntity } from '../../user/entities/user.entity';
+import { UserEntity } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +54,7 @@ export class AuthService {
 
     return await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRET_KEY'),
-      expiresIn: this.configService.get<number>('JWT_ACCESS_EXPIRES_IN'),
+      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
     });
   }
 
@@ -66,7 +66,7 @@ export class AuthService {
 
     return await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRET_KEY'),
-      expiresIn: this.configService.get<number>('JWT_REFRESH_EXPIRES_IN'),
+      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
     });
   }
 }
