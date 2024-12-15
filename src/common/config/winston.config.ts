@@ -1,4 +1,4 @@
-import { utilities, WinstonModule, WinstonModuleAsyncOptions, WinstonModuleOptions } from 'nest-winston';
+import { utilities, WinstonModule, WinstonModuleAsyncOptions } from 'nest-winston';
 import * as winston from 'winston';
 import * as winstonDaily from 'winston-daily-rotate-file';
 import { ConsoleTransportOptions } from 'winston/lib/winston/transports';
@@ -33,7 +33,7 @@ const consoleOptions: ConsoleTransportOptions = {
         winston.format.timestamp(),
         utilities.format.nestLike('NestJS-Sample', {
           colors: true,
-          prettyPrint: true, // nest에서 제공하는 옵션. 로그 가독성을 높여줌
+          prettyPrint: true,
           appName: true,
         }),
       ),
@@ -44,8 +44,25 @@ export const winstonModuleAsyncOptions: WinstonModuleAsyncOptions = {
     level: IS_PROD ? 'info' : 'debug',
     transports: [
       new winston.transports.Console(consoleOptions),
-      new winstonDaily(dailyOptions('info')),
       new winstonDaily(dailyOptions('error')),
+      new winstonDaily({
+        ...dailyOptions('info'),
+        level: 'info',
+        format: winston.format.combine(
+          winston.format((info) => {
+            if (info.level === 'error') {
+              return false;
+            }
+            return info;
+          })(),
+          winston.format.timestamp(),
+          utilities.format.nestLike('NestJS-Sample', {
+            colors: false,
+            prettyPrint: true,
+            appName: true,
+          }),
+        ),
+      }),
     ],
   }),
 };

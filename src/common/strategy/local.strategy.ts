@@ -11,14 +11,6 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   }
 
   async validate(email: string, password: string): Promise<Omit<User, 'password'>> {
-    try {
-      const user = await this.authService.validateUser(email, password);
-      if (!user) {
-        throw new UnauthorizedException('이메일 혹은 비밀번호를 확인해주세요.');
-      }
-      return user;
-    } catch (error) {
-      throw new UnauthorizedException('인증 과정에서 오류가 발생했습니다.');
-    }
+    return await this.authService.validateUser(email, password);
   }
 }

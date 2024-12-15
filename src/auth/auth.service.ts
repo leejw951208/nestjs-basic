@@ -7,6 +7,8 @@ import { ConfigService } from '@nestjs/config';
 import { AuthResDto } from './dto/auth-res.dto';
 import { SignupReqDto } from './dto/signup-req.dto';
 import { UserEntity } from '../user/entities/user.entity';
+import { BaseException } from '../common/exception/base.exception';
+import { NOT_FOUND, UNAUTHORIZED } from '../common/exception/error.code';
 
 @Injectable()
 export class AuthService {
@@ -19,11 +21,11 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.prisma.user.findFirst({ where: { email } });
     if (!user) {
-      return null;
+      throw new BaseException(NOT_FOUND.USER_NOT_FOUND, this.constructor.name);
     }
     const isMatched = await bcryptjs.compare(password, user.password);
     if (!isMatched) {
-      return null;
+      throw new BaseException(UNAUTHORIZED.PASSWORD_NOT_MATCHED, this.constructor.name);
     }
     return user;
   }
