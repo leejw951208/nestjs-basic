@@ -13,7 +13,11 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('signin')
   signin(@Request() req: any): Promise<AuthResDto> {
-    return this.authService.siginin(req.user);
+    const loginInfo = {
+      ip: req.ip || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+    };
+    return this.authService.siginin(req.user, loginInfo);
   }
 
   @Public()

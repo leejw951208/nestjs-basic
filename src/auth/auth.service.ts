@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as bcryptjs from 'bcryptjs';
 import { User } from '@prisma/client';
@@ -9,6 +9,9 @@ import { SignupReqDto } from './dto/signup-req.dto';
 import { UserEntity } from '../user/entities/user.entity';
 import { BaseException } from '../common/exception/base.exception';
 import { NOT_FOUND, UNAUTHORIZED } from '../common/exception/error.code';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { Inject } from '@nestjs/common';
+import { Logger as WinstonLogger } from 'winston';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +19,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: WinstonLogger,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User> {
@@ -30,8 +34,21 @@ export class AuthService {
     return user;
   }
 
-  async siginin(user: User): Promise<AuthResDto> {
-    // 로그인 이력 저장
+  async siginin(user: User, loginInfo: { ip: string; userAgent: string }): Promise<AuthResDto> {
+    // Save login history
+    await this.prisma.loginHistory.create({
+      data: {
+        userId: user.id,
+        ip: loginInfo.ip,
+        userAgent: loginInfo.userAgent,
+      },
+    });
+    this.logger.info(`Login history recorded for user ${user.id}`, {
+      userId: user.id,
+      ip: loginInfo.ip,
+      userAgent: loginInfo.userAgent,
+      context: this.constructor.name,
+    });
 
     const accessToken = await this.createAccessToken(user);
     const refreshToken = await this.createRefreshToken(user);

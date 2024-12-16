@@ -1,0 +1,7 @@
+model LoginHistory {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  ip        String
+  userAgent String
+  createdAt DateTime @default(now())
+}
